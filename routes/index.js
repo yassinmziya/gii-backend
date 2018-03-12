@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var d3 = require('d3')
 var parse = require('csv-parse')
-var data = require('./common/2011')
+var GII = require('./gii')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -10,7 +10,13 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/v1/data/:year', function(req, res) {
-  res.send(d3.csvParse(require(`./common/${req.params.year}`)))
+  var gii = new GII(req.params.year)
+  res.send(gii.getAll())
+});
+
+router.get('/v1/data/:iso3/:year', function(req, res) {
+  var gii = new GII(req.params.year)
+  res.send(gii.getCountry(req.params.iso3))
 });
 
 module.exports = router;
