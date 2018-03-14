@@ -37,4 +37,4 @@ router.get('/v1/categories/:year/:code/', function (req, res) {
 })
 
 
-module.exports = router;
+module.exports = router
