@@ -21,11 +21,20 @@ router.get('/v1/data/:iso3/:year', function(req, res) {
   })
 });
 
-router.get('/v1/codes/:iso3', function(req, res) {
+router.get('/v1/countries/:iso3', function(req, res) {
   var codes = d3.csvParse(require('./common/iso3'))
   res.send({
     iso3 : codes[0][req.params.iso3.toUpperCase()]
   })
 })
+
+router.get('/v1/categories/:year/:code/', function (req, res) {
+  var allCodes = d3.csvParse(require(`./common/${parseInt(req.params.year) < 2016?'titles-2015':'titles-2016'}`))[0]
+
+  res.send({
+    label: allCodes[req.params.code]
+  })
+})
+
 
 module.exports = router;

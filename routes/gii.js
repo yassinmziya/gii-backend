@@ -25,6 +25,9 @@ class GII {
         var data = this.country_codes.filter(country => country.ISO3 === iso3.toUpperCase())
         return data[0]
     }
+
+    rank(year, category) {
+    }
 }
 
 module.exports = GII
