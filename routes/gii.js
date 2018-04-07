@@ -5,6 +5,7 @@ class GII {
         this.year = year
         this.country_codes = d3.csvParse(require(`./common/iso3`))
         this.data = d3.csvParse(require(`./common/${year}`))
+        this.indicators = d3.csvParse(require(`./common/${parseInt(year) < 2016?'titles-2015':'titles-2016'}`))[0];
     }
 
     // returns an array of all country statistics for this years
@@ -26,7 +27,30 @@ class GII {
         return data[0]
     }
 
-    rank(year, category) {
+    // given a valid GII code, returns the child level as an array
+    getSubLevel(code) {
+        console.log(this.indicators)
+        var sub = Object.keys(this.indicators).filter((x) => {
+            return code.charAt(0) === x.charAt(0) && (x.length>code.length && x.length<=code.length + 2) 
+        })
+        return sub;
+    }
+
+    // returns heirarchy of indicators. goes down to tertiary level.
+    getIndicatorHeirarchy() {
+        var top = Object.keys(this.indicators).filter((x) => {
+            return x.length === 2
+        });
+        var accum = {};
+        top.forEach((x) => {
+            accum[x] = {};
+            accum[x]["secondary"] = this.getSubLevel(x);
+            accum[x]["tertiary"] = [];
+            accum[x]["secondary"].forEach((y) => {
+                accum[x]["tertiary"].push(this.getSubLevel(y))
+            })
+        })
+        return accum;
     }
 }
 
