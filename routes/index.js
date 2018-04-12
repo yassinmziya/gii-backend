@@ -65,6 +65,16 @@ router.get('/v1/categories/:year/', function(req, res) {
   })
 })
 
+// POST e.g [1.2.4, 1.2.3, 1.2.1]
+router.post('/v1/categories/:year', (req, res) => {
+  var allCodes = d3.csvParse(require(`./common/${parseInt(req.params.year) < 2016?'titles-2015':'titles-2016'}`))[0]
+  
+  var mapping = req.body.map(x => allCodes[x])
+  res.send(
+    mapping
+  )
+})
+
 
 // returns appropriate gii indicator lablel given a gii indicator code and a valid year
 router.get('/v1/categories/:year/:code/', function(req, res) {
