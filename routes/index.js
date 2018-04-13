@@ -69,7 +69,11 @@ router.get('/v1/categories/:year/', function(req, res) {
 router.post('/v1/categories/:year', (req, res) => {
   var allCodes = d3.csvParse(require(`./common/${parseInt(req.params.year) < 2016?'titles-2015':'titles-2016'}`))[0]
   
-  var mapping = req.body.map(x => allCodes[x])
+  var mapping = req.body.map((x) => {
+    x += (x.length < 5 && x.charAt(x.length-1)==='.')?'':'.'
+    console.log(x)
+    return allCodes[x]
+  })
   res.send(
     mapping
   )
