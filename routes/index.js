@@ -23,6 +23,23 @@ router.get('/v1/data/:iso3/:year', function(req, res) {
   })
 });
 
+router.get('/v1/data/region/:regionCode/:year', function(req, res) {
+  var gii = new GII(req.params.year);
+  var data = gii.getRegion(req.params.regionCode)
+  res.send(data);
+});
+
+router.get('/v1/data/incomeGroup/:incomeGroupCode/:year', function(req, res) {
+  var gii = new GII(req.params.year);
+  var data = gii.getIncomeGroup(req.params.incomeGroupCode);
+  res.send(data);
+});
+
+router.get('/v1/data/summary/:iso3/:year', (req, res) => {
+  var gii = new GII(req.params.year);
+  var summary = gii.summary(req.params.iso3, req.params.year);
+  res.send(summary);
+});
 
 // returns ordered list of country code/name data
 router.get('/v1/countries/', function(req, res) {
@@ -73,7 +90,7 @@ router.post('/v1/categories/:year', (req, res) => {
     if(x.length !== 5) {
       x += (x.length < 5 && x.charAt(x.length-1)==='.')?'':'.'
     }
-    console.log(x)
+    //console.log(x)
     return allCodes[x]
   })
   res.send(
