@@ -5,7 +5,13 @@ class GII {
         this.year = year
         this.country_codes = d3.csvParse(require(`./common/iso3`))
         this.data = d3.csvParse(require(`./common/${year}`))
-        this.indicators = d3.csvParse(require(`./common/${parseInt(year) < 2016?'titles-2015':'titles-2016'}`))[0];
+        
+        var indicatorsRaw = d3.csvParse(require('./common/indicators'));
+        var indicators = {};
+        indicatorsRaw.forEach((indicator) => {
+            indicators[indicator.Code] = indicator
+        })
+        this.indicators = indicators;
     }
 
     // returns an array of all country statistics for this years
@@ -39,6 +45,20 @@ class GII {
         return data;
     }
 
+    getIndicators(year) {
+        var codes = Object.keys(this.indicators);
+        var mappings = {};
+        codes.forEach((code) => {
+            if(year === '2014-c' || year === '2014-p') {
+                year = '2014';
+            }
+            var mapping = this.indicators[code][`Title${year}`];
+            mappings[code] = mapping === "" ? null : mapping;
+        })
+
+        return mappings;
+    }
+
     strengthAndWeakness(countryData) {
         var keys = Object.keys(countryData);
         var startIndex = keys.find((e) => e === "1.score");
@@ -46,12 +66,20 @@ class GII {
         var keys = keys.filter((key) => key.includes('score'));
         var keys = keys.slice(4);
 
-        var strengths = keys.map((indicator) => {
+        var thresholdStrength = parseInt(countryData.Output);
+        var thresholdWeakness = parseInt(countryData.Both);
+
+        var strong = keys.filter((key) => parseFloat(countryData[key]) >= thresholdStrength);
+        var weak = keys.filter((key) => parseFloat(countryData[key]) <= thresholdWeakness);
+        strong = strong.map((indicator) => {
             return {indicator: indicator, score: countryData[indicator]};
         })
 
-        strengths.sort((a,b) => parseInt(a.score - b.score))
-        return strengths;
+        weak = weak.map((indicator) => {
+            return {indicator: indicator, score: countryData[indicator]};
+        })
+
+        return [strong, weak];
 
     }
 
@@ -88,32 +116,6 @@ class GII {
         summary.test = this.strengthAndWeakness(data);
 
         return summary;
-    }
-
-    // given a valid GII code, returns the child level as an array
-    getSubLevel(code) {
-        //console.log(this.indicators)
-        var sub = Object.keys(this.indicators).filter((x) => {
-            return code.charAt(0) === x.charAt(0) && (x.length>code.length && x.length<=code.length + 2) 
-        })
-        return sub;
-    }
-
-    // returns heirarchy of indicators. goes down to tertiary level.
-    getIndicatorHeirarchy() {
-        var top = Object.keys(this.indicators).filter((x) => {
-            return x.length === 2
-        });
-        var accum = {};
-        top.forEach((x) => {
-            accum[x] = {};
-            accum[x]["secondary"] = this.getSubLevel(x);
-            accum[x]["tertiary"] = [];
-            accum[x]["secondary"].forEach((y) => {
-                accum[x]["tertiary"].push(this.getSubLevel(y))
-            })
-        })
-        return accum;
     }
 }
 

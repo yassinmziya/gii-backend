@@ -75,45 +75,19 @@ router.get('/v1/countries/:iso3', function(req, res) {
 
 // returns all gii indicator->label mappings for a given year, as well as an array of keys
 router.get('/v1/categories/:year/', function(req, res) {
-  var allCodes = d3.csvParse(require(`./common/${parseInt(req.params.year) < 2016?'titles-2015':'titles-2016'}`))[0]
-  res.send({
-    codes: Object.keys(allCodes),
-    allCodes:allCodes
-  })
+  var gii = new GII(req.params.year);
+  res.send(gii.getIndicators(req.params.year));
 })
-
-// POST e.g [1.2.4, 1.2.3, 1.2.1]
-router.post('/v1/categories/:year', (req, res) => {
-  var allCodes = d3.csvParse(require(`./common/${parseInt(req.params.year) < 2016?'titles-2015':'titles-2016'}`))[0]
-  
-  var mapping = req.body.map((x) => {
-    if(x.length !== 5) {
-      x += (x.length < 5 && x.charAt(x.length-1)==='.')?'':'.'
-    }
-    //console.log(x)
-    return allCodes[x]
-  })
-  res.send(
-    mapping
-  )
-})
-
 
 // returns appropriate gii indicator lablel given a gii indicator code and a valid year
 router.get('/v1/categories/:year/:code/', function(req, res) {
-  var allCodes = d3.csvParse(require(`./common/${parseInt(req.params.year) < 2016?'titles-2015':'titles-2016'}`))[0]
-  res.send({
-    label: allCodes[req.params.code]
-  })
+  var gii = new GII(req.params.year);
+  res.send(gii.getIndicators(req.params.year)[req.params.code]);
 })
 
-// returns heirarhchy for the given year
-router.get('/v1/heirarchy/:year', function(req, res) {
-  var gii = new GII(req.params.year)
-  var heirarchy = gii.getIndicatorHeirarchy()
-  res.send({
-    heirarchy: heirarchy
-  })
-})
+router.get('/v1/indicators/:year', (req, res) => {
+  var gii = new GII(req.params.year);
+  res.send(gii.getIndicators(req.params.year));
+});
 
 module.exports = router;
