@@ -84,3 +84,15 @@ router.get('/v1/categories/:year/:code/', function(req, res) {
   var gii = new GII(req.params.year);
   res.send(gii.getIndicators(req.params.year)[req.params.code]);
 })
+
+router.post('/v1/categories/:year/', (req, res) => {
+  var gii = new GII(req.params.year);
+  var indicators = gii.getIndicators();
+  var mappings = req.body.map((code) => {
+    return indicators[code];
+  });
+  res.send(mappings)
+})
+
+
+module.exports = router;

@@ -45,7 +45,8 @@ class GII {
         return data;
     }
 
-    getIndicators(year) {
+    getIndicators() {
+        var year = this.year;
         var codes = Object.keys(this.indicators);
         var mappings = {};
         codes.forEach((code) => {
@@ -53,7 +54,10 @@ class GII {
                 year = '2014';
             }
             var mapping = this.indicators[code][`Title${year}`];
-            mappings[code] = mapping === "" ? null : mapping;
+            
+            if(!(mapping === "" || mapping === " ")) {
+                mappings[code] = mapping;
+            }
         })
 
         return mappings;
