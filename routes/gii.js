@@ -65,11 +65,13 @@ class GII {
 
     strengthAndWeakness(countryData) {
         var keys = Object.keys(countryData);
-        var startIndex = keys.find((e) => e === "1.score");
-        var keys = keys.slice(startIndex);
-        var keys = keys.filter((key) => key.includes('score'));
-        var keys = keys.slice(4);
+        keys = keys.filter((key) => key.includes('rank'));
+        keys = keys.slice(4);
 
+        keys = keys.sort((a, b) => {
+            parseInt(countryData[a]) - parseInt(countryData[b])
+        })
+        /*
         var thresholdStrength = parseInt(countryData.Output);
         var thresholdWeakness = parseInt(countryData.Both);
 
@@ -82,8 +84,18 @@ class GII {
         weak = weak.map((indicator) => {
             return {indicator: indicator, score: countryData[indicator]};
         })
+        */
+        var strengths = keys.filter((key) => {
+            return parseInt(countryData[key]) <= 3
+        });
 
-        return [strong, weak];
+        strengths = strengths.map((key) => key.slice(0,-4));
+
+        var weaknesses = keys.slice(keys.length - 5);
+
+        weaknesses = weaknesses.map((key) => key.slice(0,-4));
+
+        return {strengths: strengths, weaknesses: weaknesses};
 
     }
 
@@ -91,6 +103,8 @@ class GII {
     summary(iso3, year) {
         const data = this.getCountryData(iso3.toUpperCase());
         var summary = {};
+        summary.iso3 = iso3;
+        summary.economy = data.Economy;
         summary.GII = {rank: parseInt(data['GIIrank']), score: parseInt(data['GIIscore'])};
         summary.input = {rank: parseInt(data['Inputrank']), score: parseInt(data['Inputscore'])};
         summary.output = {rank: parseInt(data['Outputrank']), score: parseInt(data['Outputscore'])};
